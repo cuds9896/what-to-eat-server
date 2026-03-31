@@ -1,6 +1,6 @@
 const http = require("http");
 const { WebSocketServer } = require("ws");
-const sqlite3 = require("sqlite3").verbose();
+const Database = require("better-sqlite3");
 const express = require("express");
 const app = express();
 
@@ -17,13 +17,7 @@ const expressPort = 3000;
 const connections = {};
 const users = {};
 
-const db = new sqlite3.Database("what-to-eat.db", (err) => {
-  if (err) {
-    console.error("Error opening database:", err.message);
-  } else {
-    console.log("Connected to the SQLite database.");
-  }
-});
+const db = new Database("what-to-eat.db");
 
 app.listen(expressPort, () => {
   console.log(`Express server is listening on port ${expressPort}`);
