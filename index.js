@@ -9,10 +9,6 @@ const { createAuthMiddleware } = require("./middleware/auth");
 const cookieParser = require("cookie-parser");
 
 const app = express();
-app.use((req, res, next) => {
-  console.log("Incoming request:", req.method, req.url);
-  next();
-});
 const expressPort = 3000;
 const webhookPort = 8000;
 
@@ -39,9 +35,7 @@ app.use(
 );
 
 app.get("/me", authenticate, async (req, res) => {
-  console.log("test");
   const user = await userStore.getUserByUUID(req.user.id);
-  console.log("/me user: " + user.username + " UUID: " + user.uuid);
   res.json({ username: user.username, uuid: user.uuid });
 });
 
@@ -105,10 +99,7 @@ app.get("/getIngredients", (req, res) => {
 
 app.post("/removeRecipe", express.json(), (req, res) => {
   const recipeId = req.body.id;
-  console.log(`Received request to remove recipe with ID: ${recipeId}`);
-  console.log("Request body:", req.body);
   const result = recipeStore.removeRecipe(recipeId);
-  console.log(`Deleted recipe with ID: ${recipeId} and its ingredients`);
   res.json(result);
 });
 
@@ -137,8 +128,6 @@ app.post("/addRecipe", express.json(), (req, res) => {
   }
 });
 
-app.listen(expressPort, "0.0.0.0", () => {
-  console.log(`Express server is listening on port ${expressPort}`);
-});
+app.listen(expressPort, "0.0.0.0", () => {});
 
 module.exports = { app, server, db, connections, users, voting };

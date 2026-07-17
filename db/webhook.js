@@ -11,15 +11,11 @@ const createWebhookServer = ({ port = 8000 } = {}) => {
 
   const broadcastUpdate = () => {
     connections.forEach((connection, uuid) => {
-      console.log("connection: " + typeof connection);
-      console.log("activeUsers: " + activeUsers);
       const activeUsersArray = Array.from(activeUsers);
-      console.log(activeUsersArray);
       const message = JSON.stringify({
         type: "userUpdate",
         message: activeUsersArray,
       });
-      console.log("broadcasting...");
       connection.socket.send(message);
     });
   };
@@ -36,16 +32,12 @@ const createWebhookServer = ({ port = 8000 } = {}) => {
   };
 
   const handleMessage = (bytes, connectionId) => {
-    console.log(
-      `incoming message from WS: ${bytes} ${typeof bytes} ${typeof connectionId}`,
-    );
     const message = JSON.parse(bytes.toString());
     const connection = connections.get(connectionId);
 
     if (message.updateUser) {
       connection.userId = message.updateUser.uuid;
       connections.set(connectionId, connection);
-      console.log("activeUsers set: ", message.updateUser.uuid);
       activeUsers.set(message.updateUser.uuid, {
         username: message.updateUser.username,
         connectionId: connectionId,
@@ -61,25 +53,21 @@ const createWebhookServer = ({ port = 8000 } = {}) => {
     }
 
     if (message.votes && message.votes.length > 0) {
-      console.log(`User ${user.username} updated their votes.`);
       activeUsers[connection.userId].votes = message.votes;
     }
 
     if (message.startVoting) {
-      console.log(`User ${user.username} started voting.`);
       voting.votingOpen = true;
       voting.hostId = connectionId;
       broadcastVoteInitiation(uuid);
     }
 
     broadcastUpdate();
-    console.log(`Received message:`, message);
   };
 
   const handleClose = (connectionId) => {
     const connection = connections.get(connectionId);
     if (connection.userId) {
-      console.log(`Client disconnected: ${connection.userId}`);
       activeUsers.delete(connection.userId);
     }
 
@@ -90,9 +78,7 @@ const createWebhookServer = ({ port = 8000 } = {}) => {
   };
 
   wsServer.on("connection", (socket, request) => {
-    console.log("Client connected");
     const connectionId = crypto.randomUUID();
-    console.log(connectionId);
     connections.set(connectionId, {
       socket,
       userId: null,
@@ -102,9 +88,7 @@ const createWebhookServer = ({ port = 8000 } = {}) => {
     socket.on("close", () => handleClose(connectionId));
   });
 
-  server.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
-  });
+  server.listen(port, () => {});
 
   return { server, wsServer, connections, activeUsers, voting };
 };

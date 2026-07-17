@@ -19,7 +19,6 @@ const createSessionSchema = (db) => {
   };
 
   const getSessionByTokenHash = (tokenHash) => {
-    console.log("looking up session");
     return db
       .prepare(`SELECT * FROM sessions where tokenHash = ?`)
       .get(tokenHash);
